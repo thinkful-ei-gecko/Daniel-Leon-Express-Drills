@@ -50,7 +50,7 @@ app.listen(8000, () => {
 // });
 
 app.get('/lotto', (req, res) => {
-  let numbers = req.query.arr;
+  let numbers = req.query.arr.map(number => parseInt(number));
 
   const distinct = (value, index, self) => {
     return self.indexOf(value) === index;
@@ -81,9 +81,21 @@ app.get('/lotto', (req, res) => {
   generateNumbers();
 
   let checkedNumbers = [...generatedNumbers, ...numbers];
+
+  let matchedNumbers = checkedNumbers.filter(distinct).length;
+
   console.log(checkedNumbers);
-  //iterate over numbers and randoms conditionals for 4 , 5 ,6 
+  const responses = {
+    6: 'You could have won the megamillions',
+    7: 'Congrats, you win 100 bucks',
+    8: 'You get a free ticket',
+    9: 'You lose.'
+  };
 
-
-  res.send('completed');
+  if (matchedNumbers > 5 && matchedNumbers < 9) {
+    console.log(matchedNumbers);
+    return res.send(responses[matchedNumbers]);
+  }
+  console.log(matchedNumbers);
+  res.send(responses[9]);
 });
