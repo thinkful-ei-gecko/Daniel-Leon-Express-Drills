@@ -29,22 +29,61 @@ app.listen(8000, () => {
 
 //Drill 2 
 
-app.get('/cipher', (req,res) => {
-  let text = req.query.text;
-  let shift = req.query.shift;
-  let parseShift = parseInt(shift);
-  if (typeof parseShift !== 'number' || !parseShift) { return res.status(400).send('Shift must be a number'); }
-  else {
-    let charArray = text.split('');
-    charArray.forEach((letter,index) => {
-      console.log(charArray[index].charCodeAt(0));
-      if (charArray[index].charCodeAt(0) >= 65 && charArray[index].charCodeAt(0) <= 127 || charArray[index].charCodeAt(0) === 32) {
-        charArray[index] = String.fromCharCode(charArray[index].charCodeAt(0) + parseShift);
-      }
-      else {
-        return res.status(400).send('Must be a letter between character codes 65-127');
-      }
-    });
-    res.send(`${charArray}`);
+// app.get('/cipher', (req,res) => {
+//   let text = req.query.text;
+//   let shift = req.query.shift;
+//   let parseShift = parseInt(shift);
+//   if (typeof parseShift !== 'number' || !parseShift) { return res.status(400).send('Shift must be a number'); }
+//   else {
+//     let charArray = text.split('');
+//     charArray.forEach((letter,index) => {
+//       console.log(charArray[index].charCodeAt(0));
+//       if (charArray[index].charCodeAt(0) >= 65 && charArray[index].charCodeAt(0) <= 127 || charArray[index].charCodeAt(0) === 32) {
+//         charArray[index] = String.fromCharCode(charArray[index].charCodeAt(0) + parseShift);
+//       }
+//       else {
+//         return res.status(400).send('Must be a letter between character codes 65-127');
+//       }
+//     });
+//     res.send(`${charArray}`);
+//   }
+// });
+
+app.get('/lotto', (req, res) => {
+  let numbers = req.query.arr;
+
+  const distinct = (value, index, self) => {
+    return self.indexOf(value) === index;
+  };
+
+  if (numbers.filter(distinct).length !== 6) {
+    return res.status(400).send('Must have 6 unique numbers');
   }
+
+  if (numbers.filter(number => number < 21 && number > 0).length !== 6) {
+    return res.status(400).send('Must be between 1 and 20');
+  }
+
+  let generatedNumbers = [];
+
+  function generateNumbers() {
+    for (let i = generatedNumbers.length; i < 6; i++) {
+      generatedNumbers.push(Math.floor(Math.random()*20)+1);
+    }
+    let array = generatedNumbers.filter(distinct);
+    generatedNumbers = array;
+    if (array.length !== 6) {
+      generateNumbers();
+    }
+    return generatedNumbers;
+  }
+
+  generateNumbers();
+
+  let checkedNumbers = [...generatedNumbers, ...numbers];
+  console.log(checkedNumbers);
+  //iterate over numbers and randoms conditionals for 4 , 5 ,6 
+
+
+  res.send('completed');
 });
