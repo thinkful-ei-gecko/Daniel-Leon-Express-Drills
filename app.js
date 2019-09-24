@@ -48,3 +48,54 @@ app.listen(8000, () => {
 //     res.send(`${charArray}`);
 //   }
 // });
+
+app.get('/lotto', (req, res) => {
+  let numbers = req.query.arr.map(number => parseInt(number));
+
+  const distinct = (value, index, self) => {
+    return self.indexOf(value) === index;
+  };
+
+  if (numbers.filter(distinct).length !== 6) {
+    return res.status(400).send('Must have 6 unique numbers');
+  }
+
+  if (numbers.filter(number => number < 21 && number > 0).length !== 6) {
+    return res.status(400).send('Must be between 1 and 20');
+  }
+
+  let generatedNumbers = [];
+
+  function generateNumbers() {
+    for (let i = generatedNumbers.length; i < 6; i++) {
+      generatedNumbers.push(Math.floor(Math.random()*20)+1);
+    }
+    let array = generatedNumbers.filter(distinct);
+    generatedNumbers = array;
+    if (array.length !== 6) {
+      generateNumbers();
+    }
+    return generatedNumbers;
+  }
+
+  generateNumbers();
+
+  let checkedNumbers = [...generatedNumbers, ...numbers];
+
+  let matchedNumbers = checkedNumbers.filter(distinct).length;
+
+  console.log(checkedNumbers);
+  const responses = {
+    6: 'You could have won the megamillions',
+    7: 'Congrats, you win 100 bucks',
+    8: 'You get a free ticket',
+    9: 'You lose.'
+  };
+
+  if (matchedNumbers > 5 && matchedNumbers < 9) {
+    console.log(matchedNumbers);
+    return res.send(responses[matchedNumbers]);
+  }
+  console.log(matchedNumbers);
+  res.send(responses[9]);
+});
